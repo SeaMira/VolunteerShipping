@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Next Shipping</title>
+
+    <!-- CSS bootstrap -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.2/dist/leaflet.css"
+    integrity="sha256-sA+zWATbFveLLNqWO2gtiw3HL/lh1giY/Inf1BJ0z14="
+    crossorigin=""/>
+    <!-- JS bootstrap -->
+    <script src="https://unpkg.com/leaflet@1.9.2/dist/leaflet.js"
+    integrity="sha256-o9N1jGDZrf5tS+Ft4gbIK7mYMipq9lqpVJ91xHSyKhg="
+    crossorigin=""></script>
+    <script src="https://code.jquery.com/jquery-3.6.1.min.js" integrity="sha256-o88AwQnZB+VDvE9tvIXrMQaPlFFSUTR+nldQm1LuPXQ=" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.7/dist/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+
+
+</head>
+<body>
+    <div class="row jumbotron bg-danger text-white text-center">
+        <div class="col">
+            <h1 class=" col text-center" style="font-size: 3vw"> Next shipping</h1>
+        </div>
+    </div>
+    {0}
+    <div class="card" style="font-size: 2vw">
+            <div class="card-body text-center">
+            <p class="card-title inline"><u>Opciones:</u></p>
+            <ul class="list-group text-center">
+                <li id="pais_origen" class="list-group-item"><A href="../cgi-bin/Agregar_Viaje.py"> Agregar viaje </A></li>
+                <li id="destino" class="list-group-item"><A HREF="../cgi-bin/Agregar_Encargo.py"> Agregar encargos </A></li>
+                <li id="fechaIda" class="list-group-item"><A HREF="../cgi-bin/ver_viajes.py?pagina=1"> Ver viajes </A></li>
+                <li id="fechaLlegada" class="list-group-item"><A HREF="../cgi-bin/ver_encargos.py?pagina=1"> Ver encargos </A></li>
+                <li id="graficos" class="list-group-item"><A HREF="../graficos.html"> Estadísticas </A></li>
+            </ul>
+            </div>
+    </div>
+    <div class="container">
+
+        <div class="row">
+
+          <div class="col-md-8 order-md-1">
+            <h4 class="mb-3">Mapa</h4>
+            <div id="map" style="height: 680px;"></div>
+
+          </div>
+
+        </div>
+
+    </div>
+    <style>
+        img.huechange {{filter: hue-rotate(120deg);}}
+    </style>
+
+    <script>
+        
+
+
+        var map = L.map('map').setView([0, 0], 12);
+
+        L.tileLayer('https://tile.openstreetmap.org/{{z}}/{{x}}/{{y}}.png', {{
+            maxZoom: 19,
+            attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        }}).addTo(map);
+
+
+        $.get('ajax_info.py?info=viajes').done(function(viajes){{
+         $.each(viajes, function(key,viaje){{
+            $.getJSON('../country-capitals.json', function (coordinates) {{
+                let paisOrigen = viaje[0][0]
+                let ciudadOrigen = viaje[0][1]
+                let paisDestino = viaje[1][0]
+                let ciudadDestino = viaje[1][1]
+                console.log(paisOrigen)
+                let latOrig;
+                let lonOrig;
+                let latDes;
+                let lonDes;
+
+                $.each(coordinates, function (llave, coord) {{
+
+                  if (coord['CountryName'] == paisOrigen && coord['CapitalName'] == ciudadOrigen) {{
+                      latOrig = parseFloat(coord["CapitalLatitude"])
+                      lonOrig = parseFloat(coord["CapitalLongitude"])
+
+                      var marker = L.marker([latOrig, lonOrig]).addTo(map);
+                      marker.bindPopup("Origen: "+paisOrigen+", "+ciudadOrigen + " | Destino: "+paisDestino+", "+ciudadDestino+" | Fecha de Ida: "+viaje[2]+" | Fecha de Regreso: "+ viaje[3]+ " | Kilos disponibles:"+viaje[4]+" | Espacio disponible: "+viaje[5]+" | Email viajero: "+viaje[6]+ " | Teléfono celular viajero: "+viaje[7])
+                  }}
+                  if (coord['CountryName'] == paisDestino && coord['CapitalName'] == ciudadDestino) {{
+                      latDes = parseFloat(coord["CapitalLatitude"])
+                      lonDes = parseFloat(coord["CapitalLongitude"])
+
+                      var marker = L.marker([latDes, lonDes]).addTo(map);
+                      marker.bindPopup("Origen: "+paisOrigen+", "+ciudadOrigen + " | Destino: "+paisDestino+", "+ciudadDestino+" | Fecha de Ida: "+viaje[2]+" | Fecha de Regreso: "+ viaje[3]+ " | Kilos disponibles:"+viaje[4]+" | Espacio disponible: "+viaje[5]+" | Email viajero: "+viaje[6]+ " | Teléfono celular viajero: "+viaje[7])
+                  }}
+              }})
+                var polygon = L.polygon([[latOrig, lonOrig], [latDes, lonDes]]).addTo(map);
+            }})
+         }})
+        }})
+
+        $.get('ajax_info.py?info=encargos').done(function(encargos){{
+         $.each(encargos, function(key,encargo){{
+            $.getJSON('../country-capitals.json', function (coordinates) {{
+                let paisOrigen = encargo[3][0]
+                let ciudadOrigen = encargo[3][1]
+                let paisDestino = encargo[4][0]
+                let ciudadDestino = encargo[4][1]
+                console.log(paisOrigen)
+                let latOrig;
+                let lonOrig;
+                let latDes;
+                let lonDes;
+
+                $.each(coordinates, function (llave, coord) {{
+
+                  if (coord['CountryName'] == paisOrigen && coord['CapitalName'] == ciudadOrigen) {{
+                      latOrig = parseFloat(coord["CapitalLatitude"])
+                      lonOrig = parseFloat(coord["CapitalLongitude"])
+
+                      var marker1 = L.marker([latOrig, lonOrig]).addTo(map);
+                      marker1.bindPopup("Origen: "+paisOrigen+", "+ciudadOrigen + " | Destino: "+paisDestino+", "+ciudadDestino+" | Descripción: "+encargo[0]+" | Kilos disponibles:"+encargo[2]+" | Espacio disponible: "+encargo[1]+" | Email viajero: "+encargo[5]+ " | Celular: "+encargo[6])
+                      marker1._icon.classList.add("huechange");
+                  }}
+                  if (coord['CountryName'] == paisDestino && coord['CapitalName'] == ciudadDestino) {{
+                      latDes = parseFloat(coord["CapitalLatitude"])
+                      lonDes = parseFloat(coord["CapitalLongitude"])
+
+                      var marker2 = L.marker([latDes, lonDes]).addTo(map);
+                      marker2.bindPopup("Origen: "+paisOrigen+", "+ciudadOrigen + " | Destino: "+paisDestino+", "+ciudadDestino+" | Descripción: "+encargo[0]+" | Kilos disponibles:"+encargo[2]+" | Espacio disponible: "+encargo[1]+" | Email viajero: "+encargo[5]+ " | Celular: "+encargo[6])
+                      marker2._icon.classList.add("huechange");
+                  }}
+              }})
+                var polygon = L.polygon([[latOrig, lonOrig], [latDes, lonDes]]).addTo(map);
+            }})
+         }})
+        }})
+
+    </script>
+
+
+
+
+
+</body>
+</html>

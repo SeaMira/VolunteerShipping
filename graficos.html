@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estadísticas</title>
+
+    <!-- CSS bootstrap -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+    <!-- JS bootstrap -->
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.1.min.js" integrity="sha256-o88AwQnZB+VDvE9tvIXrMQaPlFFSUTR+nldQm1LuPXQ=" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.7/dist/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+
+
+</head>
+<body>
+    <div class="row jumbotron bg-danger text-white text-center">
+        <div class="col">
+            <h1 class=" col text-center" style="font-size: 3vw"> Estadísticas en envíos y encargos</h1>
+        </div>
+    </div>
+
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="../inicio.html">Next Shipping</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" href="cgi-bin/Agregar_Viaje.py">Agregar viaje</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="cgi-bin/Agregar_Encargo.py">Agregar encargo</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="cgi-bin/ver_viajes.py?pagina=1">Ver viajes</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="cgi-bin/ver_encargos.py?pagina=1">Ver encargos</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+    <div class="card" style="font-size: 2vw">
+            <div class="card-body text-center">
+            <p class="card-title inline"><u>Estadísticas de viajes:</u></p>
+                <div id="container1" style="width:100%; height:400px;"></div>
+                <br>
+                <div id="container2" style="width:100%; height:400px;"></div>
+
+             <p class="card-title inline"><u>Estadísticas de encargos:</u></p>
+                <div id="container3" style="width:100%; height:400px;"></div>
+                <br>
+                <div id="container4" style="width:100%; height:400px;"></div>
+            </div>
+    </div>
+
+
+
+    <script>
+      // $.get('cgi-bin/ajax_info.py?info=lista_viajes').done(function(viajes){
+      //   let dic_kilos1 = {}
+      //     let dic_kilos2 = {}
+      //   let dic_espacio = {}
+      //   const cat = []
+      //     let string;
+      //     $.each(viajes, function (key, viaje) {
+      //       if (viaje[5] in dic_kilos1) {
+      //           dic_kilos1[viaje[5]] += 1;
+      //       } else {
+      //           dic_kilos1[viaje[5]] = 1;
+      //       }
+      //
+      //       if (viaje[6] in dic_espacio) {
+      //           dic_espacio[viaje[6]] += 1;
+      //       } else {
+      //           dic_espacio[viaje[6]] = 1;
+      //       }
+      //   })
+      //     console.log(dic_kilos1)
+      //     $.get('cgi-bin/ajax_info.py?info=kilos').done(function(kilos){
+      //         let size = kilos.length
+      //         $.each(kilos, function (key, kilo) {
+      //          if (kilo[0] in dic_kilos1 && !(kilo[1] in cat)) {
+      //              dic_kilos2[kilo[0]] = kilo[1]
+      //          }
+      //
+      //          const chart = Highcharts.chart('container', {
+      //              chart: {
+      //                  type: "bar"
+      //              },
+      //              title: {
+      //                  text: 'Viajes vs kilos por encargo'
+      //              },
+      //              xAxis: {
+      //                  categories: cat
+      //              },
+      //              yAxis: {
+      //                  title: {
+      //                      text: "viajes"
+      //                  }
+      //              },
+      //              series: [{
+      //                  name: "Alo",
+      //                  data:
+      //              }]
+      //          })
+      //
+      //       })
+      //         console.log(dic_kilos2)
+      //     })
+      //
+      // })
+
+
+      // kilos vs viajes
+      document.addEventListener('DOMContentLoaded', function () {
+          $.get('cgi-bin/ajax_info.py?info=lista_viajesk').done(function (viajes) {
+              $.get('cgi-bin/ajax_info.py?info=kilos').done(function (kilos) {
+                  let kg = [];
+                  let kg_count = []
+                  $.each(kilos, function (key, kilo) {
+                      kg.push(kilo[1])
+                  })
+                  for (var i = 1; i<= kilos.length; i++) {
+                      kg_count.push(0)
+                      for (var j = 0; j < viajes.length; j++) {
+                          if (viajes[j][0] == i) {
+                              kg_count[i-1] = viajes[j][1]
+                              break;
+                          }
+                      }
+
+                  }
+                  const chart = Highcharts.chart('container1', {
+                      chart: {
+                          type: 'bar'
+                      },
+                      title: {
+                          text: 'Kilos vs viajes'
+                      },
+                      xAxis: {
+                          categories: kg
+                      },
+                      yAxis: {
+                          title: {
+                              text: 'Viajes con ese peso disponible'
+                          }
+                      },
+                      series: [{
+                          name: 'Cantidad viajes',
+                          data: kg_count
+                      }]
+                  });
+              });
+          });
+      });
+
+      // espacio vs viajes
+      document.addEventListener('DOMContentLoaded', function () {
+          $.get('cgi-bin/ajax_info.py?info=lista_viajese').done(function (viajes) {
+              $.get('cgi-bin/ajax_info.py?info=espacio').done(function (espacios) {
+                  let esp = [];
+                  let esp_count = []
+                  $.each(espacios, function (key, espacio) {
+                      esp.push(espacio[1])
+                  })
+                  for (var i = 1; i<= espacios.length; i++) {
+                      esp_count.push(0)
+                      for (var j = 0; j < viajes.length; j++) {
+                          if (viajes[j][0] == i) {
+                              esp_count[i-1] = viajes[j][1]
+                              break;
+                          }
+                      }
+
+                  }
+                  const chart = Highcharts.chart('container2', {
+                      chart: {
+                          type: 'bar'
+                      },
+                      title: {
+                          text: 'Espacio vs viajes'
+                      },
+                      xAxis: {
+                          categories: esp
+                      },
+                      yAxis: {
+                          title: {
+                              text: 'Viajes con ese espacio disponible'
+                          }
+                      },
+                      series: [{
+                          name: 'Cantidad viajes',
+                          data: esp_count
+                      }]
+                  });
+              });
+          });
+      });
+
+      //kilos vs encargo
+      document.addEventListener('DOMContentLoaded', function () {
+          $.get('cgi-bin/ajax_info.py?info=lista_encargosk').done(function (encargos) {
+              $.get('cgi-bin/ajax_info.py?info=kilos').done(function (kilos) {
+                  let kg = [];
+                  let kg_count = []
+                  $.each(kilos, function (key, kilo) {
+                      kg.push(kilo[1])
+                  })
+                  for (var i = 1; i<= kilos.length; i++) {
+                      kg_count.push(0)
+                      for (var j = 0; j < encargos.length; j++) {
+                          if (encargos[j][0] == i) {
+                              kg_count[i-1] = encargos[j][1]
+                              break;
+                          }
+                      }
+
+                  }
+                  const chart = Highcharts.chart('container3', {
+                      chart: {
+                          type: 'bar'
+                      },
+                      title: {
+                          text: 'Kilos vs encargos'
+                      },
+                      xAxis: {
+                          categories: kg
+                      },
+                      yAxis: {
+                          title: {
+                              text: 'Encargos con ese peso disponible'
+                          }
+                      },
+                      series: [{
+                          name: 'Cantidad encargos',
+                          data: kg_count
+                      }]
+                  });
+              });
+          });
+      });
+
+      // espacio vs encargos
+      document.addEventListener('DOMContentLoaded', function () {
+          $.get('cgi-bin/ajax_info.py?info=lista_encargose').done(function (encargos) {
+              $.get('cgi-bin/ajax_info.py?info=espacio').done(function (espacios) {
+                  let esp = [];
+                  let esp_count = []
+                  $.each(espacios, function (key, espacio) {
+                      esp.push(espacio[1])
+                  })
+                  for (var i = 1; i<= espacios.length; i++) {
+                      esp_count.push(0)
+                      for (var j = 0; j < encargos.length; j++) {
+                          if (encargos[j][0] == i) {
+                              esp_count[i-1] = encargos[j][1]
+                              break;
+                          }
+                      }
+
+                  }
+                  const chart = Highcharts.chart('container4', {
+                      chart: {
+                          type: 'bar'
+                      },
+                      title: {
+                          text: 'Espacio vs encargos'
+                      },
+                      xAxis: {
+                          categories: esp
+                      },
+                      yAxis: {
+                          title: {
+                              text: 'Encargos con ese espacio disponible'
+                          }
+                      },
+                      series: [{
+                          name: 'Cantidad encargos',
+                          data: esp_count
+                      }]
+                  });
+              });
+          });
+      });
+
+    </script>
+
+</body>
+</html>
